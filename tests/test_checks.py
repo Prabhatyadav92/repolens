@@ -120,3 +120,20 @@ def test_gitignored_env_is_not_reported(tmp_path):
 def test_js_template_literal_counts_as_use(tmp_path):
     result = make(tmp_path, {"m.js": "const name = require('name');\nconsole.log(`hi ${name}`);\n"})
     assert "unused-import" not in rules(analyze.run(result.files, Limits()))
+
+
+def test_jsx_apostrophe_does_not_hide_a_component(tmp_path):
+    jsx = (
+        "import { Link } from 'react-router-dom';\n"
+        "export default function Login() {\n"
+        "  return <p>Don't have an account? <Link to=\"/register\">Sign up</Link></p>;\n"
+        "}\n"
+    )
+    result = make(tmp_path, {"Login.jsx": jsx})
+    assert "unused-import" not in rules(analyze.run(result.files, Limits()))
+
+
+def test_repeated_demo_passwords_are_collapsed(tmp_path):
+    seed = "".join(f"u{i} = {{ password: 'Sup3rS3cret{i}!' }}\n" for i in range(8))  # repolens: ignore
+    found = secrets.scan(make(tmp_path, {"seed.js": seed}))
+    assert len(found) == 1 and "7 more" in found[0].message

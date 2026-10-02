@@ -57,7 +57,24 @@ def scan(result) -> list[Finding]:
             if len(line) > 2000 or "repolens: ignore" in line:
                 continue
             findings.extend(_scan_line(f.path, number, line, env))
-    return findings
+    return _collapse(findings)
+
+
+def _collapse(findings, keep=3):
+    """A seed file with eleven identical demo passwords should read as one problem."""
+    groups = {}
+    for x in findings:
+        groups.setdefault((x.path, x.rule), []).append(x)
+    out = []
+    for items in groups.values():
+        if items[0].rule != "hardcoded-secret" or len(items) <= keep:
+            out.extend(items)
+            continue
+        first = items[0]
+        extra = len(items) - 1
+        out.append(Finding(first.path, first.line, first.rule,
+                           f"{first.message} (and {extra} more in this file)", first.severity, first.kind))
+    return out
 
 
 def _scan_line(path, number, line, env):

@@ -97,6 +97,10 @@ def strip_source(src):
             i += 1
         else:
             j, closed = _string_end(src, i)
+            if not closed and c != "`":
+                out.append(c)  # e.g. the apostrophe in JSX text
+                i += 1
+                continue
             seg = src[i:j]
             if closed:
                 inner = _mask_template(seg[1:-1]) if c == "`" else _mask(seg[1:-1])
@@ -229,6 +233,7 @@ def _unused_imports(f, skeleton, line_of):
             continue
         seen.add(name)
         uses = len(re.findall(r"(?<![\w$.])" + re.escape(name) + r"(?![\w$])", skeleton))
+        uses += len(re.findall(r"</?" + re.escape(name) + r"(?![\w$])", f.text))
         if uses <= 1:
             out.append(Finding(f.path, line_of(offset), "unused-import", f"'{name}' imported but never used"))
     return out
