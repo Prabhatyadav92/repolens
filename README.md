@@ -7,7 +7,7 @@ It only uses the Python standard library, works offline, and reads files without
 ## Install
 
 ```
-pip install repolens
+pip install repolens-scan
 ```
 
 Or from a clone:

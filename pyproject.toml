@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "repolens"
+name = "repolens-scan"
 version = "0.1.0"
 description = "Summarize a source tree: size, code problems and leaked secrets."
 readme = "README.md"
@@ -22,3 +22,5 @@ repolens = "repolens.cli:main"
 
 [tool.setuptools]
 packages = ["repolens"]
+[project.urls]
+Homepage = "https://github.com/Prabhatyadav92/repolens"
